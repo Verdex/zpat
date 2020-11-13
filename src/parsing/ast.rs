@@ -12,10 +12,10 @@ pub enum Type {
     Void,
     Fun { params : Vec<Type>, ret : Box<Type> },
     Array(Box<Type>),
-    Generic(String),
+    Generic(PSym),
     Index { name : NamespaceSymbol, params : Vec<Type> },
     Simple(NamespaceSymbol),
     Dict { key : Box<Type>, value : Box<Type> },
-    Row { params : Vec<(String, Type)>, rest_name : Option<String> },
+    Row { params : Vec<(PSym, Type)>, rest_name : Option<String> },
 }
 

@@ -1,18 +1,42 @@
 
 
-use parse_input::{PSym, Input, ParseError};
+use parse_input::{Input, ParseError};
 
 use super::ast::Type;
 
-pub fn parse( input : Input ) -> Result<Type, ParseError> {
+pub fn parse( input : &mut Input ) -> Result<Type, ParseError> {
+    input.choice( &[ parse_void
+                   , parse_array
+                   , parse_generic
+                   ] )
+}
+
+fn parse_void( input : &mut Input ) -> Result<Type, ParseError> {
+    input.expect( "void" )?;
     Ok(Type::Void)
+}
+
+fn parse_array( input : &mut Input ) -> Result<Type, ParseError> {
+    input.expect("[")?;
+
+    let t = parse( input )?;
+
+    input.expect("]")?;
+
+    Ok(Type::Array(Box::new(t)))
+}
+
+fn parse_generic( input : &mut Input ) -> Result<Type, ParseError> {
+    input.expect("'")?;
+
+    let name = input.parse_symbol()?;
+
+    Ok(Type::Generic(name))
 }
 
 /*
 
-    void
     fun(type array) -> type
-    [type]
     'name
     sym<type>
     sym::sym<type>
@@ -22,3 +46,13 @@ pub fn parse( input : Input ) -> Result<Type, ParseError> {
     Dict<type, type>
 
 */
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn should() {
+
+    }
+}
