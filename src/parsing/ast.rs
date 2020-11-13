@@ -18,3 +18,4 @@ pub enum Type {
     Dict { key : Box<Type>, value : Box<Type> },
     Row { params : Vec<(String, Type)>, rest_name : Option<String> },
 }
+
