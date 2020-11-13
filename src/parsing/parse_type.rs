@@ -37,7 +37,6 @@ fn parse_generic( input : &mut Input ) -> Result<Type, ParseError> {
 /*
 
     fun(type array) -> type
-    'name
     sym<type>
     sym::sym<type>
     Simple
@@ -50,6 +49,19 @@ fn parse_generic( input : &mut Input ) -> Result<Type, ParseError> {
 #[cfg(test)]
 mod test {
     use super::*;
+
+    use rand::Rng;
+    use rand::distributions::{Distribution, Standard};
+
+    impl Distribution<Type> for Standard {
+        fn sample<R : Rng + ?Sized>(&self, rng: &mut R) -> Type {
+            Type::Void
+        }
+    }
+
+    fn display( t : Type ) -> String {
+        "string".to_string()
+    }
 
     #[test]
     fn should() {
