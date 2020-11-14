@@ -2,7 +2,7 @@
 
 use parse_input::{Input, ParseError};
 
-use super::ast::{Type, NamespaceSymbol};
+use super::ast::Type;
 use super::parse_misc;
 
 pub fn parse( input : &mut Input ) -> Result<Type, ParseError> {
