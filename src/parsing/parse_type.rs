@@ -52,10 +52,8 @@ mod test {
 
     use rand::Rng;
     use super::super::random_ast;
+    use super::super::unparse_ast;
 
-    fn display( t : Type ) -> String {
-        "string".to_string()
-    }
 
     #[test]
     fn should() {
