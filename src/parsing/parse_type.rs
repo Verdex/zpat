@@ -55,7 +55,7 @@ fn parse_dict( input : &mut Input ) -> Result<Type, ParseError> {
 }
 
 fn parse_fun( input : &mut Input ) -> Result<Type, ParseError> {
-    input.expect("fun")?;
+    input.expect("Fun")?;
     input.expect("(")?;
 
     let params = input.list(parse)?;
@@ -81,6 +81,8 @@ fn parse_row( input : &mut Input ) -> Result<Type, ParseError> {
         p.expect("|")?;
         p.parse_symbol()
     });
+
+    input.expect("}")?;
 
     Ok(Type::Row { params, rest_name })
 }
@@ -110,11 +112,40 @@ mod test {
     use super::super::random_ast;
     use super::super::unparse_ast;
 
+    #[test]
+    fn should_parse_row_type() -> Result<(), ParseError> {
+        let string_value = r#"{ slot_1 : type_1, slot_2 : type_2 | name }"#;
+        let x = string_value.char_indices().collect::<Vec<(usize, char)>>();
+        let mut input = Input::new(&x);
+
+        let t_output = parse(&mut input)?;
+
+        let output_string_value = unparse_ast::display_type(t_output);
+
+        assert_eq!( output_string_value, string_value );
+
+        input.expect_end()?;
+
+        Ok(())
+    }
 
     #[test]
-    fn should() {
-        let mut rng = rand::thread_rng();
-        let t = rng.gen::<Type>();
-        panic!( "{}", unparse_ast::display_type(t) );
+    fn should_parse_random_types() -> Result<(), ParseError> {
+        for _ in 0..50 {
+            let mut rng = rand::thread_rng();
+            let t_input = rng.gen::<Type>();
+            let string_value = unparse_ast::display_type(t_input);
+
+            let x = string_value.char_indices().collect::<Vec<(usize, char)>>();
+            let mut input = Input::new(&x);
+
+            let t_output = parse(&mut input)?;
+            let output_string_value = unparse_ast::display_type(t_output);
+
+            assert_eq!( output_string_value, string_value );
+
+            input.expect_end()?;
+        }
+        Ok(())
     }
 }
