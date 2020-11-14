@@ -50,13 +50,13 @@ impl Distribution<Type> for Standard {
             3 => Type::Array(Box::new(rng.gen::<Type>())),
             4 => Type::Generic(gen_symbol(rng)), 
             5 => Type::Index { name: gen_namespace_symbol(rng)
-                             , params: gen_vec(rng, |r| r.gen::<Type>(), 0, 3)
+                             , params: gen_vec(rng, |r| r.gen::<Type>(), 1, 3)
                              },
             6 => Type::Simple(gen_namespace_symbol(rng)),
             7 => Type::Dict { key: Box::new(rng.gen::<Type>()) 
                             , value: Box::new(rng.gen::<Type>())
                             },
-            8 => Type::Row { params: gen_vec(rng, |r| (gen_symbol(r), r.gen::<Type>()), 0, 3)
+            8 => Type::Row { params: gen_vec(rng, |r| (gen_symbol(r), r.gen::<Type>()), 1, 3)
                            , rest_name: gen_option(rng, |r| gen_symbol(r))
                            },
             _ => panic!("Encountered random number out of range"),

@@ -59,6 +59,6 @@ mod test {
     fn should() {
         let mut rng = rand::thread_rng();
         let t = rng.gen::<Type>();
-        panic!( "{:?}", t );
+        panic!( "{}", unparse_ast::display_type(t) );
     }
 }

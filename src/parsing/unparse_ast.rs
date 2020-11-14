@@ -1,14 +1,15 @@
 
 use super::ast::*;
 
-/*
-
-    Row { params : Vec<(PSym, Type)>, rest_name : Option<PSym> },
-
-*/
 
 fn display_namespace_symbol( ns : NamespaceSymbol ) -> String {
-
+    format!( "{}::{}"
+           , ns.namespace.into_iter()
+                         .map(|v| v.value)
+                         .collect::<Vec<String>>()
+                         .join("::")
+           , ns.name.value
+           )
 }
 
 pub fn display_type( t : Type ) -> String {
@@ -21,12 +22,7 @@ pub fn display_type( t : Type ) -> String {
                                                     .join(", ")
                                             , display_type(*ret)
                                             ),
-        Type::Array(types) => format!( "[{}]"
-                                     , types.into_iter()
-                                            .map(display_type)
-                                            .collect::<Vec<String>>()
-                                            .join(", ")
-                                     ),
+        Type::Array(t) => format!( "[{}]", display_type(*t) ),
         Type::Generic(sym) => format!( "'{}", sym.value ),
         Type::Index { name, params } => format!( "{}<{}>"
                                                , display_namespace_symbol(name)
@@ -40,6 +36,19 @@ pub fn display_type( t : Type ) -> String {
                                             , display_type(*key)
                                             , display_type(*value) 
                                             ),
-
+        Type::Row { params, rest_name: Some(rest_name) } => 
+            format!( "{{ {} | {} }}"
+                   , params.into_iter()
+                           .map(|(n,t)| format!( "{} : {}", n.value, display_type(t) ))
+                           .collect::<Vec<String>>()
+                           .join(", ")
+                   , rest_name.value
+                   ),
+        Type::Row { params, rest_name: None } => format!( "{{ {} }}"
+                                                        , params.into_iter()
+                                                                .map(|(n,t)| format!( "{} : {}", n.value, display_type(t) ))
+                                                                .collect::<Vec<String>>()
+                                                                .join(", ")
+                                                        ),
     }
 }
