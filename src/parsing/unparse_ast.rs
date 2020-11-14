@@ -3,13 +3,18 @@ use super::ast::*;
 
 
 fn display_namespace_symbol( ns : NamespaceSymbol ) -> String {
-    format!( "{}::{}"
-           , ns.namespace.into_iter()
-                         .map(|v| v.value)
-                         .collect::<Vec<String>>()
-                         .join("::")
-           , ns.name.value
-           )
+    if ns.namespace.len() != 0 {
+        format!( "{}::{}"
+               , ns.namespace.into_iter()
+                             .map(|v| v.value)
+                             .collect::<Vec<String>>()
+                             .join("::")
+               , ns.name.value
+               )
+    }
+    else {
+        ns.name.value
+    }
 }
 
 pub fn display_type( t : Type ) -> String {

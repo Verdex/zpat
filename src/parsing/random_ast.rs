@@ -8,7 +8,7 @@ const CHARS: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_";
 
 
 fn gen_symbol<R : Rng + ?Sized>( rng : &mut R ) -> PSym {
-    let value = (0..rng.gen_range(1, 10))
+    let value = (0..rng.gen_range(2, 5))
         .map(|_| {
             let vlet = rng.gen_range(0, CHARS.len());
             CHARS[vlet] as char
@@ -19,14 +19,14 @@ fn gen_symbol<R : Rng + ?Sized>( rng : &mut R ) -> PSym {
 
 fn gen_namespace_symbol<R : Rng + ?Sized>( rng : &mut R ) -> NamespaceSymbol {
     let name = gen_symbol(rng);
-    let namespace = (0..rng.gen_range(0, 5))
+    let namespace = (0..rng.gen_range(1, 3))
         .map(|_| gen_symbol(rng))
         .collect::<Vec<PSym>>();
     NamespaceSymbol { name, namespace }
 }
 
 fn gen_vec<T, R : Rng + ?Sized, F : Fn(&mut R) -> T>( rng : &mut R, f : F, min : usize, max : usize ) -> Vec<T> {
-    (min..rng.gen_range(min, max))
+    (0..rng.gen_range(min, max))
         .map(|_| f(rng))
         .collect()
 }
