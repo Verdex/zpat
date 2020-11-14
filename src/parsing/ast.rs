@@ -3,8 +3,8 @@ use parse_input::PSym;
 
 #[derive(Debug)]
 pub struct NamespaceSymbol {
-    namespace : Vec<PSym>,
-    name : PSym,
+    pub namespace : Vec<PSym>,
+    pub name : PSym,
 }
 
 #[derive(Debug)]

@@ -2,7 +2,7 @@
 
 use parse_input::{Input, ParseError};
 
-use super::ast::Type;
+use super::ast::{Type, NamespaceSymbol};
 
 pub fn parse( input : &mut Input ) -> Result<Type, ParseError> {
     input.choice( &[ parse_void
@@ -51,13 +51,7 @@ mod test {
     use super::*;
 
     use rand::Rng;
-    use rand::distributions::{Distribution, Standard};
-
-    impl Distribution<Type> for Standard {
-        fn sample<R : Rng + ?Sized>(&self, rng: &mut R) -> Type {
-            Type::Void
-        }
-    }
+    use super::super::random_ast;
 
     fn display( t : Type ) -> String {
         "string".to_string()
@@ -65,6 +59,8 @@ mod test {
 
     #[test]
     fn should() {
-
+        let mut rng = rand::thread_rng();
+        let t = rng.gen::<Type>();
+        panic!( "{:?}", t );
     }
 }
