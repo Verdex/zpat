@@ -40,25 +40,24 @@ fn gen_option<T, R : Rng + ?Sized, F : Fn(&mut R) -> T>( rng : &mut R, f : F) ->
 
 impl Distribution<Type> for Standard {
     fn sample<R : Rng + ?Sized>(&self, rng: &mut R) -> Type {
-        let mut rng = rand::thread_rng();
         let choice = rng.gen_range(1, 9);
 
         match choice {
             1 => Type::Void,
-            2 => Type::Fun { params: gen_vec(&mut rng, |r| r.gen::<Type>(), 0, 3)
+            2 => Type::Fun { params: gen_vec(rng, |r| r.gen::<Type>(), 0, 3)
                            , ret: Box::new(rng.gen::<Type>())
                            },
             3 => Type::Array(Box::new(rng.gen::<Type>())),
-            4 => Type::Generic(gen_symbol(&mut rng)), 
-            5 => Type::Index { name: gen_namespace_symbol(&mut rng)
-                             , params: gen_vec(&mut rng, |r| r.gen::<Type>(), 0, 3)
+            4 => Type::Generic(gen_symbol(rng)), 
+            5 => Type::Index { name: gen_namespace_symbol(rng)
+                             , params: gen_vec(rng, |r| r.gen::<Type>(), 0, 3)
                              },
-            6 => Type::Simple(gen_namespace_symbol(&mut rng)),
+            6 => Type::Simple(gen_namespace_symbol(rng)),
             7 => Type::Dict { key: Box::new(rng.gen::<Type>()) 
                             , value: Box::new(rng.gen::<Type>())
                             },
-            8 => Type::Row { params: gen_vec(&mut rng, |r| (gen_symbol(r), r.gen::<Type>()), 0, 3)
-                           , rest_name: gen_option(&mut rng, |r| gen_symbol(r))
+            8 => Type::Row { params: gen_vec(rng, |r| (gen_symbol(r), r.gen::<Type>()), 0, 3)
+                           , rest_name: gen_option(rng, |r| gen_symbol(r))
                            },
             _ => panic!("Encountered random number out of range"),
         }
