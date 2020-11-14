@@ -4,6 +4,40 @@ use rand::Rng;
 use rand::distributions::{Distribution, Standard};
 use parse_input::PSym;
 
+const CHARS: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_";
+
+
+fn gen_symbol<R : Rng + ?Sized>( rng : &mut R ) -> PSym {
+    let value = (0..rng.gen_range(1, 10))
+        .map(|_| {
+            let vlet = rng.gen_range(0, CHARS.len());
+            CHARS[vlet] as char
+        }).collect::<String>();
+    let end = value.len();
+    PSym { value, start: 0, end }
+}
+
+fn gen_namespace_symbol<R : Rng + ?Sized>( rng : &mut R ) -> NamespaceSymbol {
+    let name = gen_symbol(rng);
+    let namespace = (0..rng.gen_range(0, 5))
+        .map(|_| gen_symbol(rng))
+        .collect::<Vec<PSym>>();
+    NamespaceSymbol { name, namespace }
+}
+
+fn gen_vec<T, R : Rng + ?Sized, F : Fn(&mut R) -> T>( rng : &mut R, f : F, min : usize, max : usize ) -> Vec<T> {
+    (min..rng.gen_range(min, max))
+        .map(|_| f(rng))
+        .collect()
+}
+
+fn gen_option<T, R : Rng + ?Sized, F : Fn(&mut R) -> T>( rng : &mut R, f : F) -> Option<T> {
+    match rng.gen::<bool>() {
+        true => Some(f(rng)),
+        false => None,
+    }
+}
+
 impl Distribution<Type> for Standard {
     fn sample<R : Rng + ?Sized>(&self, rng: &mut R) -> Type {
         let mut rng = rand::thread_rng();
@@ -11,26 +45,21 @@ impl Distribution<Type> for Standard {
 
         match choice {
             1 => Type::Void,
-            2 => {
-                // TODO params
-                Type::Fun { params: vec![], ret: Box::new(rng.gen::<Type>()) }
-            },
+            2 => Type::Fun { params: gen_vec(&mut rng, |r| r.gen::<Type>(), 0, 3)
+                           , ret: Box::new(rng.gen::<Type>())
+                           },
             3 => Type::Array(Box::new(rng.gen::<Type>())),
-            4 => Type::Generic(PSym { value: "name".to_string(), start: 0, end: 0 }), 
-            5 => {
-                // TODO params
-                // TODO namespace symbol
-                Type::Index { name: NamespaceSymbol { namespace: vec![]
-                                                    , name: PSym { value: "name".to_string(), start: 0, end: 0 }
-                                                    }
-                            , params: vec![]
-                            }
-            },
-            6 => Type::Simple( NamespaceSymbol { namespace: vec![], name: PSym { value: "name".to_string(), start: 0, end: 0 } } ),
+            4 => Type::Generic(gen_symbol(&mut rng)), 
+            5 => Type::Index { name: gen_namespace_symbol(&mut rng)
+                             , params: gen_vec(&mut rng, |r| r.gen::<Type>(), 0, 3)
+                             },
+            6 => Type::Simple(gen_namespace_symbol(&mut rng)),
             7 => Type::Dict { key: Box::new(rng.gen::<Type>()) 
                             , value: Box::new(rng.gen::<Type>())
                             },
-            8 => Type::Void, // TODO row
+            8 => Type::Row { params: gen_vec(&mut rng, |r| (gen_symbol(r), r.gen::<Type>()), 0, 3)
+                           , rest_name: gen_option(&mut rng, |r| gen_symbol(r))
+                           },
             _ => panic!("Encountered random number out of range"),
         }
     }

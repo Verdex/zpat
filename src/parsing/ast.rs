@@ -16,6 +16,6 @@ pub enum Type {
     Index { name : NamespaceSymbol, params : Vec<Type> },
     Simple(NamespaceSymbol),
     Dict { key : Box<Type>, value : Box<Type> },
-    Row { params : Vec<(PSym, Type)>, rest_name : Option<String> },
+    Row { params : Vec<(PSym, Type)>, rest_name : Option<PSym> },
 }
 
