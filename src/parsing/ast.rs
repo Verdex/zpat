@@ -40,7 +40,7 @@ pub enum Expr {
     ArrayCons(Vec<Expr>),
     DictCons(Vec<(Expr, Expr)>), 
     ObjCons(Vec<(PSym, Expr)>),
-    Let { name: (PSym, Option<Type>), params: Vec<(PSym, Option<Type>)>, body: Box<Expr> }, 
+    Let { name: (PSym, Option<Type>), params: Vec<(PSym, Option<Type>)>, value: Box<Expr>, body: Box<Expr> }, 
     Block { exprs: Vec<Expr> },
     // match
     // match all

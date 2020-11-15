@@ -24,6 +24,13 @@ fn display_slice_option( so : SliceOption ) -> String {
     }
 }
 
+fn display_fun_param( param : (PSym, Option<Type>) ) -> String {
+    match param {
+        (name, None) => name.value,
+        (name, Some(t)) => format!( "{} : {}", name.value, display_type(t) ),
+    }
+}
+
 pub fn display_type( t : Type ) -> String {
     match t {
         Type::Void => "void".to_string(),
@@ -65,18 +72,6 @@ pub fn display_type( t : Type ) -> String {
     }
 }
 
-
-/*
-
-    Lambda { params: Vec<(PSym, Option<Type>)>, ret_type: Option<Type>, body: Box<Expr> },
-    ArrayCons { params: Vec<Expr> },
-    DictCons { params: Vec<(Expr, Expr)> }, 
-    ObjCons { params: Vec<(PSym, Expr)> },
-    Let { name: (PSym, Option<Type>), params: Vec<(PSym, Option<Type>)>, body: Box<Expr> }, 
-    Block { exprs: Vec<Expr> },
-
-*/
-
 pub fn display_expr( e : Expr ) -> String {
     match e {
         Expr::Number(sym) => sym.value,
@@ -84,7 +79,6 @@ pub fn display_expr( e : Expr ) -> String {
         Expr::Bool(true) => "true".to_string(),
         Expr::Bool(false) => "false".to_string(),
         Expr::Binding(ns) => display_namespace_symbol(ns),
-
         Expr::Index { expr, index } => format!( "{}[{}]"
                                               , display_expr(*expr)
                                               , display_expr(*index)
@@ -133,6 +127,40 @@ pub fn display_expr( e : Expr ) -> String {
                                               .collect::<Vec<String>>()
                                               .join(", ")
                                          ),
-        _ => panic!("blarg"),
+        Expr::Block(es) => format!( "{{ {} }}"
+                                  , es.into_iter()
+                                      .map(display_expr)
+                                      .collect::<Vec<String>>()
+                                      .join(";\n")
+                                  ),
+        Expr::Lambda { params, ret_type, body } => 
+            match ret_type {
+                None => format!( "|{}| {}"
+                               , params.into_iter()
+                                       .map(display_fun_param)
+                                       .collect::<Vec<String>>()
+                                       .join(" ")
+                               , display_expr(*body)
+                               ),
+                Some(ret_type) => format!( "|{}| -> {} {}"
+                                         , params.into_iter()
+                                                 .map(display_fun_param)
+                                                 .collect::<Vec<String>>()
+                                                 .join(" ")
+                                         , display_type(ret_type)
+                                         , display_expr(*body)
+                                         )
+            },
+        Expr::Let { name, params, value, body } =>
+            format!( "let {} = {} in {};"
+                   , vec![name].append(params)
+                               .into_iter()
+                               .map(display_fun_param)
+                               .collect::<Vec<String>>()
+                               .join(" ")
+                   , display_expr(*value)
+                   , display_expr(*body)
+                   ),
     }
 }
+
