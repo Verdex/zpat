@@ -7,6 +7,14 @@ use parse_input::PSym;
 const CHARS: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_";
 const NUMS: &[u8] = b"1234567890";
 
+static mut FUEL : usize = 0;
+
+pub fn set_fuel( amount : usize ) {
+    unsafe {
+        FUEL = amount;
+    }
+}
+
 fn gen_num<R : Rng + ?Sized>( rng : &mut R ) -> PSym {
     let value = (0..rng.gen_range(2, 5))
         .map(|_| {
@@ -50,6 +58,15 @@ fn gen_option<T, R : Rng + ?Sized, F : Fn(&mut R) -> T>( rng : &mut R, f : F) ->
 
 impl Distribution<Type> for Standard {
     fn sample<R : Rng + ?Sized>(&self, rng: &mut R) -> Type {
+        unsafe {
+            if FUEL == 0 {
+                return Type::Void;
+            }
+            else {
+                FUEL -= 1;
+            }
+        }
+
         let choice = rng.gen_range(1, 9);
 
         match choice {
@@ -76,6 +93,15 @@ impl Distribution<Type> for Standard {
 
 impl Distribution<Expr> for Standard {
     fn sample<R : Rng + ?Sized>(&self, rng: &mut R) -> Expr {
+        unsafe {
+            if FUEL == 0 {
+                return Expr::Number(gen_num(rng));
+            }
+            else {
+                FUEL -= 1;
+            }
+        }
+
         let choice = rng.gen_range(1, 6);
         
         match choice {

@@ -132,6 +132,8 @@ mod test {
     #[test]
     fn should_parse_random_types() -> Result<(), ParseError> {
         for _ in 0..50 {
+            random_ast::set_fuel( 20 );
+
             let mut rng = rand::thread_rng();
             let t_input = rng.gen::<Type>();
             let string_value = unparse_ast::display_type(t_input);

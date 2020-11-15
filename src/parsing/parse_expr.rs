@@ -6,12 +6,26 @@ use super::parse_misc;
 use super::parse_type;
 
 pub fn parse( input : &mut Input ) -> Result<Expr, ParseError> {
-    input.choice( &[ parse_number
-                   , parse_string
-                   , parse_bool
-                   , parse_index
-                   , parse_namespace_symbol
-                   ] )
+    let expr = input.choice( &[ parse_number
+                              , parse_string
+                              , parse_bool
+                              , parse_namespace_symbol
+                              ] )?;
+    parse_trailing(input, expr)               
+}
+
+fn parse_trailing( input : &mut Input, init : Expr ) -> Result<Expr, ParseError> {
+     
+    match input.expect("[") {
+        Ok(_) => {
+            let index = Box::new(parse(input)?); 
+            input.expect("]")?;
+            return parse_trailing(input, Expr::Index{ expr: Box::new(init), index });
+        }, 
+        Err(_) => (),
+    }
+
+    Ok(init)
 }
 
 fn parse_number( input : &mut Input ) -> Result<Expr, ParseError> {
@@ -42,26 +56,6 @@ fn parse_namespace_symbol( input : &mut Input ) -> Result<Expr, ParseError> {
     Ok(Expr::Binding(parse_misc::parse_namespace_symbol(input)?))
 }
 
-fn parse_index( input : &mut Input ) -> Result<Expr, ParseError> {
-    let rp = input.create_restore();
-
-    let expr = Box::new(parse(input)?);
-
-    match input.expect("[") {
-        Ok(_) => (), 
-        Err(e) => {
-            input.restore(rp);
-            return Err(e)
-        },
-    }
-    
-    let index = Box::new(parse(input)?);
-
-    input.expect("]")?;
-
-    Ok(Expr::Index { expr, index })
-}
-
 #[cfg(test)]
 mod test {
     use super::*;
@@ -74,10 +68,14 @@ mod test {
 
     #[test]
     fn should_parse_random_exprs() -> Result<(), ParseError> {
+        let mut rng = rand::thread_rng();
         for _ in 0..50 {
-            let mut rng = rand::thread_rng();
+            random_ast::set_fuel( 20 );
+
             let e_input = rng.gen::<Expr>();
             let string_value = unparse_ast::display_expr(e_input);
+
+            println!( "{}",  string_value );
 
             let x = string_value.char_indices().collect::<Vec<(usize, char)>>();
             let mut input = Input::new(&x);
