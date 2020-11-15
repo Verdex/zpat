@@ -37,9 +37,9 @@ pub enum Expr {
     SlotAccess { expr: Box<Expr>, slot: PSym },
     FunCall { expr: Box<Expr>, params: Vec<Expr> },
     ExtensionFunCall { left: Box<Expr>, right: Box<Expr> },
-    ArrayCons { params: Vec<Expr> },
-    DictCons { params: Vec<(Expr, Expr)> }, 
-    ObjCons { params: Vec<(PSym, Expr)> },
+    ArrayCons(Vec<Expr>),
+    DictCons(Vec<(Expr, Expr)>), 
+    ObjCons(Vec<(PSym, Expr)>),
     Let { name: (PSym, Option<Type>), params: Vec<(PSym, Option<Type>)>, body: Box<Expr> }, 
     Block { exprs: Vec<Expr> },
     // match
