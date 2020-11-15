@@ -76,22 +76,23 @@ impl Distribution<Type> for Standard {
 
 impl Distribution<Expr> for Standard {
     fn sample<R : Rng + ?Sized>(&self, rng: &mut R) -> Expr {
-        let choice = rng.gen_range(1, 2);
+        let choice = rng.gen_range(1, 6);
         
         match choice {
             1 => Expr::Number(gen_num(rng)),
+            2 => Expr::ZString(gen_symbol(rng)),
+            3 => Expr::Bool(rng.gen::<bool>()),
+            4 => Expr::Binding(gen_namespace_symbol(rng)),
+            5 => Expr::Index { expr: Box::new(rng.gen::<Expr>())
+                             , index: Box::new(rng.gen::<Expr>())
+                             },
             _ => panic!("Encountered random number out of range for expr"),
         }
     }
 }
 
 /*
-
-    ZString(PSym),
-    Bool(bool),
-    Binding(NamespaceSymbol),
     Lambda { params: Vec<(PSym, Option<Type>)>, ret_type: Option<Type>, body: Box<Expr> },
-    Index { expr: Box<Expr>, index: Box<Expr> },
     Slice { start: SliceOption, end: SliceOption }, 
     SlotAccess { expr: Box<Expr>, slot: PSym },
     FunCall { expr: Box<Expr>, params: Vec<Expr> },
