@@ -5,7 +5,17 @@ use rand::distributions::{Distribution, Standard};
 use parse_input::PSym;
 
 const CHARS: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_";
+const NUMS: &[u8] = b"1234567890";
 
+fn gen_num<R : Rng + ?Sized>( rng : &mut R ) -> PSym {
+    let value = (0..rng.gen_range(2, 5))
+        .map(|_| {
+            let vlet = rng.gen_range(0, NUMS.len());
+            NUMS[vlet] as char
+        }).collect::<String>();
+    let end = value.len();
+    PSym { value, start: 0, end }
+}
 
 fn gen_symbol<R : Rng + ?Sized>( rng : &mut R ) -> PSym {
     let value = (0..rng.gen_range(2, 5))
@@ -59,7 +69,37 @@ impl Distribution<Type> for Standard {
             8 => Type::Row { params: gen_vec(rng, |r| (gen_symbol(r), r.gen::<Type>()), 1, 3)
                            , rest_name: gen_option(rng, |r| gen_symbol(r))
                            },
-            _ => panic!("Encountered random number out of range"),
+            _ => panic!("Encountered random number out of range for type"),
         }
     }
 }
+
+impl Distribution<Expr> for Standard {
+    fn sample<R : Rng + ?Sized>(&self, rng: &mut R) -> Expr {
+        let choice = rng.gen_range(1, 2);
+        
+        match choice {
+            1 => Expr::Number(gen_num(rng)),
+            _ => panic!("Encountered random number out of range for expr"),
+        }
+    }
+}
+
+/*
+
+    ZString(PSym),
+    Bool(bool),
+    Binding(NamespaceSymbol),
+    Lambda { params: Vec<(PSym, Option<Type>)>, ret_type: Option<Type>, body: Box<Expr> },
+    Index { expr: Box<Expr>, index: Box<Expr> },
+    Slice { start: SliceOption, end: SliceOption }, 
+    SlotAccess { expr: Box<Expr>, slot: PSym },
+    FunCall { expr: Box<Expr>, params: Vec<Expr> },
+    ExtensionFunCall { left: Box<Expr>, right: Box<Expr> },
+    ArrayCons(Vec<Expr>),
+    DictCons(Vec<(Expr, Expr)>), 
+    ObjCons(Vec<(PSym, Expr)>),
+    Let { name: (PSym, Option<Type>), params: Vec<(PSym, Option<Type>)>, value: Box<Expr>, body: Box<Expr> }, 
+    Block { exprs: Vec<Expr> },
+
+*/
