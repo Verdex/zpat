@@ -1,4 +1,6 @@
 
+use parse_input::PSym;
+
 use super::ast::*;
 
 
@@ -151,16 +153,18 @@ pub fn display_expr( e : Expr ) -> String {
                                          , display_expr(*body)
                                          )
             },
-        Expr::Let { name, params, value, body } =>
+        Expr::Let { name, mut params, value, body } => {
+            let mut one = vec![name];
+            one.append(&mut params);
             format!( "let {} = {} in {};"
-                   , vec![name].append(params)
-                               .into_iter()
-                               .map(display_fun_param)
-                               .collect::<Vec<String>>()
-                               .join(" ")
+                   , one.into_iter()
+                        .map(display_fun_param)
+                        .collect::<Vec<String>>()
+                        .join(" ")
                    , display_expr(*value)
                    , display_expr(*body)
-                   ),
+                   )
+        },
     }
 }
 
