@@ -20,12 +20,6 @@ pub enum Type {
 }
 
 #[derive(Debug)]
-pub enum SliceOption {
-    Blank,
-    Value(Box<Expr>),
-}
-
-#[derive(Debug)]
 pub enum Expr {
     Number(PSym),
     ZString(PSym),
@@ -33,7 +27,7 @@ pub enum Expr {
     Binding(NamespaceSymbol),
     Lambda { params: Vec<(PSym, Option<Type>)>, ret_type: Option<Type>, body: Box<Expr> },
     Index { expr: Box<Expr>, index: Box<Expr> },
-    Slice { start: SliceOption, end: SliceOption }, 
+    Slice { start: Option<Box<Expr>>, end: Option<Box<Expr>> }, 
     SlotAccess { expr: Box<Expr>, slot: PSym },
     FunCall { expr: Box<Expr>, params: Vec<Expr> },
     ExtensionFunCall { left: Box<Expr>, right: Box<Expr> },

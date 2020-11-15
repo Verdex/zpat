@@ -56,6 +56,16 @@ fn gen_option<T, R : Rng + ?Sized, F : Fn(&mut R) -> T>( rng : &mut R, f : F) ->
     }
 }
 
+fn gen_choice<T, R : Rng + ?Sized>( rng : &mut R, c : &[fn(&mut R) -> T] ) -> T {
+    c[rng.gen_range(0, c.len())](rng) 
+}
+
+fn gen_slice<R : Rng + ?Sized>( rng : &mut R ) -> Expr {
+    Expr::Slice { start: gen_option(rng, |r| Box::new(r.gen::<Expr>()))
+                , end: gen_option(rng, |r| Box::new(r.gen::<Expr>()))
+                }
+}
+
 impl Distribution<Type> for Standard {
     fn sample<R : Rng + ?Sized>(&self, rng: &mut R) -> Type {
         unsafe {
@@ -110,7 +120,11 @@ impl Distribution<Expr> for Standard {
             3 => Expr::Bool(rng.gen::<bool>()),
             4 => Expr::Binding(gen_namespace_symbol(rng)),
             5 => Expr::Index { expr: Box::new(rng.gen::<Expr>())
-                             , index: Box::new(rng.gen::<Expr>())
+                             , index: Box::new(gen_choice( rng
+                                                         , &[ |r| r.gen::<Expr>()
+                                                            , |r| gen_slice(r)
+                                                            ]
+                                                         ))
                              },
             _ => panic!("Encountered random number out of range for expr"),
         }

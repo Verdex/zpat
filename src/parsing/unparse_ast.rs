@@ -19,13 +19,6 @@ fn display_namespace_symbol( ns : NamespaceSymbol ) -> String {
     }
 }
 
-fn display_slice_option( so : SliceOption ) -> String {
-    match so {
-        SliceOption::Blank => "".to_string(),
-        SliceOption::Value(e) => display_expr(*e),
-    }
-}
-
 fn display_fun_param( param : (PSym, Option<Type>) ) -> String {
     match param {
         (name, None) => name.value,
@@ -85,10 +78,22 @@ pub fn display_expr( e : Expr ) -> String {
                                               , display_expr(*expr)
                                               , display_expr(*index)
                                               ),
-        Expr::Slice { start, end } => format!( "{}..{}"
-                                             , display_slice_option(start)
-                                             , display_slice_option(end)
-                                             ),
+        Expr::Slice { start: Some(start), end: Some(end) } => format!( "{}..{}"
+                                                                     , display_expr(*start)
+                                                                     , display_expr(*end)
+                                                                     ),
+        Expr::Slice { start: Some(start), end: None } => format!( "{}..{}"
+                                                                , display_expr(*start)
+                                                                , "".to_string() 
+                                                                ),
+        Expr::Slice { start: None, end: Some(end) } => format!( "{}..{}"
+                                                              , "".to_string() 
+                                                              , display_expr(*end) 
+                                                              ),
+        Expr::Slice { start: None, end: None } => format!( "{}..{}"
+                                                         , "".to_string() 
+                                                         , "".to_string() 
+                                                         ),
         Expr::SlotAccess { expr, slot } => format!( "{}.{}"
                                                   , display_expr(*expr)
                                                   , slot.value

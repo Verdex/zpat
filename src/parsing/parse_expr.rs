@@ -18,14 +18,56 @@ fn parse_trailing( input : &mut Input, init : Expr ) -> Result<Expr, ParseError>
      
     match input.expect("[") {
         Ok(_) => {
-            let index = Box::new(parse(input)?); 
-            input.expect("]")?;
-            return parse_trailing(input, Expr::Index{ expr: Box::new(init), index });
+            let index = Box::new(parse_inside_index(input)?); 
+            return parse_trailing(input, Expr::Index { expr: Box::new(init), index });
         }, 
         Err(_) => (),
     }
 
     Ok(init)
+}
+
+fn parse_inside_index( input : &mut Input ) -> Result<Expr, ParseError> {
+    fn parse_empty_slice( input : &mut Input ) -> Result<Expr, ParseError> {
+        input.expect("..")?;
+        input.expect("]")?;
+        Ok(Expr::Slice { start: None, end: None })
+    }
+
+    fn parse_empty_start_slice( input : &mut Input ) -> Result<Expr, ParseError> {
+        input.expect("..")?;
+        let end = Some(Box::new(parse(input)?));
+        input.expect("]")?;
+        Ok(Expr::Slice { start: None, end })
+    }
+
+    fn parse_empty_end_slice( input : &mut Input ) -> Result<Expr, ParseError> {
+        let start = Some(Box::new(parse(input)?));
+        input.expect("..")?;
+        input.expect("]")?;
+        Ok(Expr::Slice { start, end: None })
+    }
+
+    fn parse_slice( input : &mut Input ) -> Result<Expr, ParseError> {
+        let start = Some(Box::new(parse(input)?));
+        input.expect("..")?;
+        let end = Some(Box::new(parse(input)?));
+        input.expect("]")?;
+        Ok(Expr::Slice { start, end })
+    }
+    
+    fn parse_no_slice( input : &mut Input ) -> Result<Expr, ParseError> {
+        let e = parse(input)?;
+        input.expect("]")?;
+        Ok(e)
+    }
+
+    input.choice( &[ parse_empty_slice
+                   , parse_empty_start_slice
+                   , parse_empty_end_slice
+                   , parse_slice
+                   , parse_no_slice
+                   ] )
 }
 
 fn parse_number( input : &mut Input ) -> Result<Expr, ParseError> {
@@ -65,6 +107,7 @@ mod test {
     use super::super::unparse_ast;
 
     // TODO false_blarg symbol parses
+    // TODO empty slice, no start, no end, x..y, only expr
 
     #[test]
     fn should_parse_random_exprs() -> Result<(), ParseError> {
@@ -74,8 +117,6 @@ mod test {
 
             let e_input = rng.gen::<Expr>();
             let string_value = unparse_ast::display_expr(e_input);
-
-            println!( "{}",  string_value );
 
             let x = string_value.char_indices().collect::<Vec<(usize, char)>>();
             let mut input = Input::new(&x);
