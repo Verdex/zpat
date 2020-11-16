@@ -114,8 +114,20 @@ mod test {
     use super::super::random_ast;
     use super::super::unparse_ast;
 
-    // TODO false_blarg symbol parses
-    // TODO empty slice, no start, no end, x..y, only expr
+    #[test]
+    fn should_parse_bool_prepended_symbols() -> Result<(), ParseError> {
+        let string_value = r#"false_other"#;
+        let x = string_value.char_indices().collect::<Vec<(usize, char)>>();
+        let mut input = Input::new(&x);
+
+        let output = parse(&mut input)?;
+
+        input.expect_end()?;
+
+        assert!( matches!( output, Expr::Binding(_) ) );
+
+        Ok(())
+    }
 
     #[test]
     fn should_parse_random_exprs() -> Result<(), ParseError> {
