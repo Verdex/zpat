@@ -32,6 +32,15 @@ fn parse_trailing( input : &mut Input, init : Expr ) -> Result<Expr, ParseError>
         Err(_) => (),
     }
 
+    match input.expect("(") {
+        Ok(_) => {
+            let params = input.list( parse )?; 
+            input.expect(")")?;
+            return parse_trailing(input, Expr::FunCall { expr: Box::new(init), params });
+        },
+        Err(_) => (),
+    }
+
     Ok(init)
 }
 
