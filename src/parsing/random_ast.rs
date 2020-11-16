@@ -112,7 +112,7 @@ impl Distribution<Expr> for Standard {
             }
         }
 
-        let choice = rng.gen_range(1, 6);
+        let choice = rng.gen_range(1, 7);
         
         match choice {
             1 => Expr::Number(gen_num(rng)),
@@ -126,6 +126,9 @@ impl Distribution<Expr> for Standard {
                                                             ]
                                                          ))
                              },
+            6 => Expr::SlotAccess { expr: Box::new(rng.gen::<Expr>())
+                                  , slot: gen_symbol(rng)
+                                  },
             _ => panic!("Encountered random number out of range for expr"),
         }
     }
@@ -133,7 +136,6 @@ impl Distribution<Expr> for Standard {
 
 /*
     Lambda { params: Vec<(PSym, Option<Type>)>, ret_type: Option<Type>, body: Box<Expr> },
-    Slice { start: SliceOption, end: SliceOption }, 
     SlotAccess { expr: Box<Expr>, slot: PSym },
     FunCall { expr: Box<Expr>, params: Vec<Expr> },
     ExtensionFunCall { left: Box<Expr>, right: Box<Expr> },

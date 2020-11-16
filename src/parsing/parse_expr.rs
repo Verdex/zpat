@@ -24,6 +24,14 @@ fn parse_trailing( input : &mut Input, init : Expr ) -> Result<Expr, ParseError>
         Err(_) => (),
     }
 
+    match input.expect(".") {
+        Ok(_) => {
+            let slot = input.parse_symbol()?;
+            return parse_trailing(input, Expr::SlotAccess { expr: Box::new(init), slot });
+        },
+        Err(_) => (),
+    }
+
     Ok(init)
 }
 
