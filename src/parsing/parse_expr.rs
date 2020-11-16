@@ -37,13 +37,13 @@ fn parse_trailing( input : &mut Input, init : Expr ) -> Result<Expr, ParseError>
 
 fn parse_inside_index( input : &mut Input ) -> Result<Expr, ParseError> {
     fn parse_empty_slice( input : &mut Input ) -> Result<Expr, ParseError> {
-        input.expect("..")?;
+        input.expect("~")?;
         input.expect("]")?;
         Ok(Expr::Slice { start: None, end: None })
     }
 
     fn parse_empty_start_slice( input : &mut Input ) -> Result<Expr, ParseError> {
-        input.expect("..")?;
+        input.expect("~")?;
         let end = Some(Box::new(parse(input)?));
         input.expect("]")?;
         Ok(Expr::Slice { start: None, end })
@@ -51,14 +51,14 @@ fn parse_inside_index( input : &mut Input ) -> Result<Expr, ParseError> {
 
     fn parse_empty_end_slice( input : &mut Input ) -> Result<Expr, ParseError> {
         let start = Some(Box::new(parse(input)?));
-        input.expect("..")?;
+        input.expect("~")?;
         input.expect("]")?;
         Ok(Expr::Slice { start, end: None })
     }
 
     fn parse_slice( input : &mut Input ) -> Result<Expr, ParseError> {
         let start = Some(Box::new(parse(input)?));
-        input.expect("..")?;
+        input.expect("~")?;
         let end = Some(Box::new(parse(input)?));
         input.expect("]")?;
         Ok(Expr::Slice { start, end })

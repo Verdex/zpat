@@ -78,19 +78,19 @@ pub fn display_expr( e : Expr ) -> String {
                                               , display_expr(*expr)
                                               , display_expr(*index)
                                               ),
-        Expr::Slice { start: Some(start), end: Some(end) } => format!( "{}..{}"
+        Expr::Slice { start: Some(start), end: Some(end) } => format!( "{}~{}"
                                                                      , display_expr(*start)
                                                                      , display_expr(*end)
                                                                      ),
-        Expr::Slice { start: Some(start), end: None } => format!( "{}..{}"
+        Expr::Slice { start: Some(start), end: None } => format!( "{}~{}"
                                                                 , display_expr(*start)
                                                                 , "".to_string() 
                                                                 ),
-        Expr::Slice { start: None, end: Some(end) } => format!( "{}..{}"
+        Expr::Slice { start: None, end: Some(end) } => format!( "{}~{}"
                                                               , "".to_string() 
                                                               , display_expr(*end) 
                                                               ),
-        Expr::Slice { start: None, end: None } => format!( "{}..{}"
+        Expr::Slice { start: None, end: None } => format!( "{}~{}"
                                                          , "".to_string() 
                                                          , "".to_string() 
                                                          ),
