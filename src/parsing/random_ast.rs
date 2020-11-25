@@ -112,7 +112,7 @@ impl Distribution<Expr> for Standard {
             }
         }
 
-        let choice = rng.gen_range(1, 8);
+        let choice = rng.gen_range(1, 9);
         
         match choice {
             1 => Expr::Number(gen_num(rng)),
@@ -132,6 +132,7 @@ impl Distribution<Expr> for Standard {
             7 => Expr::FunCall { expr: Box::new(rng.gen::<Expr>())
                                , params: gen_vec( rng, |r| r.gen::<Expr>(), 0, 3 )
                                },
+            8 => Expr::ArrayCons(gen_vec(rng, |r| r.gen::<Expr>(), 0, 3)),
             _ => panic!("Encountered random number out of range for expr"),
         }
     }
@@ -140,7 +141,6 @@ impl Distribution<Expr> for Standard {
 /*
     Lambda { params: Vec<(PSym, Option<Type>)>, ret_type: Option<Type>, body: Box<Expr> },
     ExtensionFunCall { left: Box<Expr>, right: Box<Expr> },
-    ArrayCons(Vec<Expr>),
     DictCons(Vec<(Expr, Expr)>), 
     ObjCons(Vec<(PSym, Expr)>),
     Let { name: (PSym, Option<Type>), params: Vec<(PSym, Option<Type>)>, value: Box<Expr>, body: Box<Expr> }, 

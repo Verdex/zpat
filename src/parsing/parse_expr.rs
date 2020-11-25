@@ -10,6 +10,7 @@ pub fn parse( input : &mut Input ) -> Result<Expr, ParseError> {
                               , parse_string
                               , parse_bool
                               , parse_namespace_symbol
+                              , parse_array_cons
                               ] )?;
     parse_trailing(input, expr)               
 }
@@ -113,6 +114,16 @@ fn parse_bool( input : &mut Input ) -> Result<Expr, ParseError> {
 
 fn parse_namespace_symbol( input : &mut Input ) -> Result<Expr, ParseError> {
     Ok(Expr::Binding(parse_misc::parse_namespace_symbol(input)?))
+}
+
+fn parse_array_cons( input : &mut Input ) -> Result<Expr, ParseError> {
+    input.expect("[")?;
+
+    let items = input.list(parse)?;
+    
+    input.expect("]")?;
+
+    Ok(Expr::ArrayCons(items))    
 }
 
 #[cfg(test)]
