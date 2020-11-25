@@ -134,12 +134,6 @@ pub fn display_expr( e : Expr ) -> String {
                                               .collect::<Vec<String>>()
                                               .join(", ")
                                          ),
-        Expr::Block(es) => format!( "{{ {} }}"
-                                  , es.into_iter()
-                                      .map(display_expr)
-                                      .collect::<Vec<String>>()
-                                      .join(";\n")
-                                  ),
         Expr::Lambda { params, ret_type, body } => 
             match ret_type {
                 None => format!( "|{}| {}"
